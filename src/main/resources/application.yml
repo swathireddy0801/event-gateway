@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /event-gateway
 
 spring:
   application:
@@ -16,7 +18,7 @@ spring:
     show-sql: false
 
 account-service:
-  base-url: ${ACCOUNT_SERVICE_URL:http://localhost:8081}
+  base-url: ${ACCOUNT_SERVICE_URL:http://localhost:8081/account-service}
   connect-timeout-ms: 1000
   read-timeout-ms: 2000
 

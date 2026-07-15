@@ -3,7 +3,7 @@
 Public-facing entry point for ingesting financial transaction events and applying them to
 account balances, built to tolerate out-of-order and duplicate delivery from upstream systems.
 Validates incoming events, stores them (with its own H2 database) keyed by `eventId` for
-idempotency, and calls the separate [Account Service](https://github.com/YOUR_ORG/account-service)
+idempotency, and calls the separate [Account Service](https://github.com/swathireddy0801/account-service)
 to apply each transaction.
 
 If the Account Service is unreachable, the event is still durably stored (status `FAILED`) and
@@ -85,10 +85,18 @@ python3 scripts/generate-test-token.py events:write
 ```
 
 ```bash
-curl -X POST http://localhost:8080/events \
+curl -X POST http://localhost:8080/event-gateway/events \
   -H "Authorization: Bearer $(python3 scripts/generate-test-token.py events:write)" \
   -H "Content-Type: application/json" \
   -d '{"eventId":"evt-1","accountId":"acct-1","type":"CREDIT","amount":100,"currency":"USD","eventTimestamp":"2026-05-15T14:02:11Z"}'
+```
+```bash
+curl http://localhost:8080/event-gateway/events/evt-1 \        
+  -H "Authorization: Bearer $(python3 scripts/generate-test-token.py events:read)" 
+```
+```bash
+ curl -X GET http://localhost:8080/event-gateway/accounts/acct-1/balance \
+  -H "Authorization: Bearer $(python3 scripts/generate-test-token.py events)"  
 ```
 
 ## Prerequisites
