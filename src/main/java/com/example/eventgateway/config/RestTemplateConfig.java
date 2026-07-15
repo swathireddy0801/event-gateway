@@ -17,8 +17,8 @@ public class RestTemplateConfig {
             @Value("${account-service.connect-timeout-ms}") long connectTimeoutMs,
             @Value("${account-service.read-timeout-ms}") long readTimeoutMs) {
         return builder
-                .connectTimeout(Duration.ofMillis(connectTimeoutMs))
-                .readTimeout(Duration.ofMillis(readTimeoutMs))
+                .setConnectTimeout(Duration.ofMillis(connectTimeoutMs))
+                .setReadTimeout(Duration.ofMillis(readTimeoutMs))
                 .build();
     }
 }
