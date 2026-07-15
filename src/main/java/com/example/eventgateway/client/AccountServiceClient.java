@@ -2,6 +2,7 @@ package com.example.eventgateway.client;
 
 import com.example.eventgateway.exception.AccountServiceUnavailableException;
 import com.example.eventgateway.filter.TraceIdFilter;
+import com.example.eventgateway.security.ServiceTokenIssuer;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
@@ -28,11 +29,14 @@ public class AccountServiceClient {
 
     private final RestTemplate restTemplate;
     private final String baseUrl;
+    private final ServiceTokenIssuer serviceTokenIssuer;
 
     public AccountServiceClient(RestTemplate accountServiceRestTemplate,
-                                 @Value("${account-service.base-url}") String baseUrl) {
+                                 @Value("${account-service.base-url}") String baseUrl,
+                                 ServiceTokenIssuer serviceTokenIssuer) {
         this.restTemplate = accountServiceRestTemplate;
         this.baseUrl = baseUrl;
+        this.serviceTokenIssuer = serviceTokenIssuer;
     }
 
     @CircuitBreaker(name = "accountService", fallbackMethod = "applyTransactionFallback")
@@ -77,6 +81,7 @@ public class AccountServiceClient {
     private HttpHeaders buildHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(serviceTokenIssuer.issueToken());
         String traceId = MDC.get(TraceIdFilter.MDC_KEY);
         if (traceId != null) {
             headers.set(TraceIdFilter.TRACE_ID_HEADER, traceId);

@@ -18,7 +18,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+// Security is covered separately in JwtSecurityTest; this class focuses on
+// request handling/validation behavior, independent of auth.
+@AutoConfigureMockMvc(addFilters = false)
 class EventControllerTest {
 
     @Autowired

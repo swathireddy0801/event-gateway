@@ -55,6 +55,42 @@ Configuration (`application.yml`, tuned lighter in `application-test.yml` for fa
 When the breaker is open or a call fails, `POST /events` returns `503` with the event already
 persisted; `GET /accounts/{id}/balance` also returns `503`. `GET /events/...` is unaffected.
 
+## Security
+
+The Gateway is an OAuth2 resource server: every request except `/health` requires a valid JWT
+bearer token (`Authorization: Bearer <token>`), validated against `JWT_CLIENT_SECRET` (HS256).
+`POST /events` additionally requires an `events:write` scope; other endpoints just need any
+valid token.
+
+When calling the Account Service, the Gateway mints its own short-lived internal JWT (signed
+with `JWT_INTERNAL_SECRET`, `internal:accounts` scope, 60s TTL) rather than forwarding the
+client's token - so a client-facing token can never be replayed directly against the internal
+service. `JWT_INTERNAL_SECRET` must be identical on both services.
+
+**Set real secrets in every environment but local dev** - `application.yml` only has dev-only
+defaults:
+
+```bash
+export JWT_CLIENT_SECRET="<at least 32 random bytes>"
+export JWT_INTERNAL_SECRET="<at least 32 random bytes, matching account-service>"
+```
+
+For a production identity provider, swap the `clientJwtDecoder` bean in `JwtDecoderConfig` for
+`NimbusJwtDecoder.withJwkSetUri(...)` pointed at your IdP instead of a shared secret.
+
+**Getting a test token locally:**
+
+```bash
+python3 scripts/generate-test-token.py events:write
+```
+
+```bash
+curl -X POST http://localhost:8080/events \
+  -H "Authorization: Bearer $(python3 scripts/generate-test-token.py events:write)" \
+  -H "Content-Type: application/json" \
+  -d '{"eventId":"evt-1","accountId":"acct-1","type":"CREDIT","amount":100,"currency":"USD","eventTimestamp":"2026-05-15T14:02:11Z"}'
+```
+
 ## Prerequisites
 
 - Java 17+

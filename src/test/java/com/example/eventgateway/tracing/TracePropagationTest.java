@@ -28,7 +28,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * and propagated to the Account Service via the X-Trace-Id header.
  */
 @SpringBootTest
-@AutoConfigureMockMvc
+// Security is covered separately in JwtSecurityTest; this class focuses on
+// trace propagation, independent of auth.
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 class TracePropagationTest {
 

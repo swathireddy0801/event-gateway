@@ -7,6 +7,10 @@ services:
       - "8080:8080"
     environment:
       - ACCOUNT_SERVICE_URL=http://host.docker.internal:8081
+      # Validates tokens presented by external clients.
+      - JWT_CLIENT_SECRET=${JWT_CLIENT_SECRET:?set a shared secret of at least 32 bytes}
+      # Must match account-service's JWT_INTERNAL_SECRET exactly.
+      - JWT_INTERNAL_SECRET=${JWT_INTERNAL_SECRET:?set a shared secret of at least 32 bytes}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
       interval: 5s

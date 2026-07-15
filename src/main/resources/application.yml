@@ -20,6 +20,20 @@ account-service:
   connect-timeout-ms: 1000
   read-timeout-ms: 2000
 
+security:
+  jwt:
+    # Validates tokens presented by external clients calling this Gateway.
+    # In production this secret would come from your actual token issuer
+    # (or you'd switch to issuer-uri/jwk-set-uri if using a real OAuth2
+    # Authorization Server) - override via env var everywhere but local dev.
+    client-secret: ${JWT_CLIENT_SECRET:dev-only-client-shared-secret-change-me-32bytes+}
+    # Used to mint short-lived service-to-service tokens when calling the
+    # Account Service. Must match account-service's security.jwt.internal-secret.
+    internal-secret: ${JWT_INTERNAL_SECRET:dev-only-internal-shared-secret-change-me-32bytes+}
+    internal-issuer: event-gateway
+    internal-audience: account-service
+    internal-token-ttl-seconds: 60
+
 resilience4j:
   circuitbreaker:
     instances:

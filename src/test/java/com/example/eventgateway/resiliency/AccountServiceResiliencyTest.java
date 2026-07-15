@@ -30,7 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *  - the Gateway's own read endpoints keep working regardless
  */
 @SpringBootTest
-@AutoConfigureMockMvc
+// Security is covered separately in JwtSecurityTest; this class focuses on
+// resiliency behavior, independent of auth.
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 class AccountServiceResiliencyTest {
 
